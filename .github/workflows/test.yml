@@ -11,6 +11,7 @@ jobs:
 
       - name: Prowlarr
         run: |
+         sudo adduser prowlarr
          sudo apt install curl sqlite3
          wget --content-disposition 'http://prowlarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore&arch=x64'
          tar -xvzf Prowlarr*.linux*.tar.gz
