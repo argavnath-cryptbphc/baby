@@ -18,5 +18,4 @@ jobs:
          sudo mv Prowlarr/ /opt
          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
          sudo dpkg -i cloudflared-linux-amd64.deb
-         npm install -g localtunnel
-         sudo /opt/Prowlarr/Prowlarr -nobrowser -data=/var/lib/prowlarr/ & lt --port 8000 --subdomain babyprowl
+         sudo /opt/Prowlarr/Prowlarr -nobrowser -data=/var/lib/prowlarr/ & sudo cloudflared tunnel --url localhost:9696
