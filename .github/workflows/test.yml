@@ -1,1 +1,40 @@
+name: Prowlarr
 
+on:
+  workflow_dispatch:
+
+jobs:
+  start-prowlarr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.3
+
+      - name: Prowlarr
+        run: |
+         sudo apt install curl sqlite3
+         wget --content-disposition 'http://prowlarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore&arch=x64'
+         tar -xvzf Prowlarr*.linux*.tar.gz
+         sudo mv Prowlarr/ /opt
+         sudo chown prowlarr:prowlarr -R /opt/Prowlarr
+         cat << EOF | sudo tee /etc/systemd/system/prowlarr.service > /dev/null
+                [Unit]
+                Description=Prowlarr Daemon
+                After=syslog.target network.target
+                [Service]
+                User=prowlarr
+                Group=prowlarr
+                Type=simple
+                
+                ExecStart=/opt/Prowlarr/Prowlarr -nobrowser -data=/var/lib/prowlarr/
+                        TimeoutStopSec=20
+                KillMode=process
+                Restart=on-failure
+                [Install]
+                WantedBy=multi-user.target
+                EOF
+         sudo systemctl -q daemon-reload
+         sudo systemctl enable --now -q prowlarr
+         sudo journalctl --since today -u prowlarr
+         wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+         sudo dpkg -i cloudflared-linux-amd64.deb
+         cloudflared tunnel --url localhost:9696
